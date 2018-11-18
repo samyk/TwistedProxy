@@ -26,14 +26,17 @@ def onClose(udp_protocol):
             udp_protocol.packetProcessor.stop()
 
 
-def start_frida_script():
+def start_frida_script(network):
     # Would be better to use frida.get_usb_device().spawn to spawn the app
     # But it seems that it is broken on some version so we use adb to spawn the game
     os.system("adb shell monkey -p com.supercell.clashroyale -c android.intent.category.LAUNCHER 1")
     time.sleep(0.5)
 
     try:
-        device = frida.get_usb_device()
+        if network:
+            device = frida.get_remote_device()
+        else:
+            device = frida.get_usb_device()
 
     except Exception as exception:
         print('[*] Can\'t connect to your device ({}) !'.format(exception.__class__.__name__))
@@ -71,6 +74,7 @@ def start_frida_script():
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Python proxy used to decrypt all clash royale game traffic')
     parser.add_argument('-f', '--frida', help='inject the frida script at the proxy runtime', action='store_true')
+    parser.add_argument('-n', '--network', help='connect to frida via network rather than USB', action='store_true')
     parser.add_argument('-v', '--verbose', help='print packet hexdump in console', action='store_true')
     parser.add_argument('-r', '--replay', help='save packets in replay folder', action='store_true')
     parser.add_argument('-u', '--udp', help='start the udp proxy', action='store_true')
@@ -85,7 +89,7 @@ if __name__ == '__main__':
         exit()
 
     if args.frida:
-        start_frida_script()
+        start_frida_script(args.network)
 
     crypto = Crypto(config['ServerKey'])
     replay = Replay(config['ReplayDirectory'])
