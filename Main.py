@@ -26,10 +26,10 @@ def onClose(udp_protocol):
             udp_protocol.packetProcessor.stop()
 
 
-def start_frida_script(network):
+def start_frida_script(network, adbpath):
     # Would be better to use frida.get_usb_device().spawn to spawn the app
     # But it seems that it is broken on some version so we use adb to spawn the game
-    os.system("adb shell monkey -p com.supercell.clashroyale -c android.intent.category.LAUNCHER 1")
+    os.system(adbpath + " shell monkey -p com.supercell.clashroyale -c android.intent.category.LAUNCHER 1")
     time.sleep(0.5)
 
     try:
@@ -78,6 +78,7 @@ if __name__ == '__main__':
     parser.add_argument('-v', '--verbose', help='print packet hexdump in console', action='store_true')
     parser.add_argument('-r', '--replay', help='save packets in replay folder', action='store_true')
     parser.add_argument('-u', '--udp', help='start the udp proxy', action='store_true')
+    parser.add_argument('-a', '--adbpath', help='path to adb', default='adb')
 
     args = parser.parse_args()
 
@@ -89,7 +90,7 @@ if __name__ == '__main__':
         exit()
 
     if args.frida:
-        start_frida_script(args.network)
+        start_frida_script(args.network, args.adbpath)
 
     crypto = Crypto(config['ServerKey'])
     replay = Replay(config['ReplayDirectory'])

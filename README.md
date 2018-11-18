@@ -20,10 +20,12 @@ To start the proxy you will just have to run the following command:
 
 However the proxy accept some optionals arguments that are:
 
-* `-f`: if specified, the game will be automatically spawned and the frida script will be injected at proxy runtime
-* `-v`: if specified, the proxy will be run in verbose mode that basically output packets hexdump in terminal
-* `-r`: if specified, all packets will be saved in the repository you've set in config.json (ReplayDirectory key)
-* `-u`: if specified UDP proxy will be launched too
+* `-f`: the game will be automatically spawned and the frida script will be injected at proxy runtime
+* `-n`: connect to frida via network rather than USB
+* `-v`: the proxy will be run in verbose mode that basically output packets hexdump in terminal
+* `-r`: all packets will be saved in the repository you've set in config.json (ReplayDirectory key)
+* `-u`: UDP proxy will be launched too
+* `-a`: optional path to adb, useful if using specific adb/Android emulator
 
 ### UDP Proxy
 
