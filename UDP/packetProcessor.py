@@ -3,7 +3,7 @@
 from queue import Queue
 from threading import Thread
 from TCP.Packet.reader import Reader
-from UDP.packetEnum import packet_enum
+from UDP.packetEnum import udp_packet_enum
 
 
 class packetProcessor(Thread):
@@ -51,7 +51,7 @@ class packetProcessor(Thread):
 
                             for packet in reversed(packet_list):
                                 if packet['sequence_id'] == host_dict['next_sequence_id']:
-                                    packet_name = packet_enum.get(packet['id'], packet['id'])
+                                    packet_name = udp_packet_enum.get(packet['id'], packet['id'])
                                     print('[*] Received UDP chunk {} from {}, chunk length: {}'.format(
                                                                                                 packet_name,
                                                                                                 host,

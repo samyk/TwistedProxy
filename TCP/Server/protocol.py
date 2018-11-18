@@ -6,6 +6,7 @@ from twisted.internet import reactor
 from TCP.Client.factory import ClientFactory
 from TCP.PacketReceiver import packetReceiver
 from TCP.Packet.packetEnum import packet_enum
+from UDP.packetEnum import udp_packet_enum
 from twisted.internet.protocol import Protocol
 
 
@@ -33,7 +34,7 @@ class ServerProtocol(packetReceiver, Protocol):
             reactor.callLater(0.25, self.processPacket, packet_id, data)
             return
 
-        packet_name = packet_enum.get(packet_id, packet_id)
+        packet_name = packet_enum.get(packet_id, udp_packet_enum.get(packet_id, packet_id))
 
         print('[*] {} received from client'.format(packet_name))
 
