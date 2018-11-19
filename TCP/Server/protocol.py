@@ -34,11 +34,15 @@ class ServerProtocol(packetReceiver, Protocol):
             reactor.callLater(0.25, self.processPacket, packet_id, data)
             return
 
+        decrypted = self.crypto.decrypt_client_packet(packet_id, data[7:])
+        encrypted = self.crypto.encrypt_client_packet(packet_id, decrypted)
+        payload = packet_id.to_bytes(2, 'big') + len(encrypted).to_bytes(3, 'big') + data[5:7] + encrypted
+
         packet_name = packet_enum.get(packet_id, udp_packet_enum.get(packet_id, packet_id))
 
         print('[*] {} received from client'.format(packet_name))
 
-        decrypted = self.crypto.decrypt_client_packet(packet_id, data[7:])
+        self.client.transport.write(payload)
 
         if self.factory.args.verbose and decrypted:
             print(hexdump.hexdump(decrypted))
@@ -46,7 +50,3 @@ class ServerProtocol(packetReceiver, Protocol):
         if self.factory.args.replay:
             self.factory.replay.save_tcp_packet(packet_name, data[:7] + decrypted)
 
-        encrypted = self.crypto.encrypt_client_packet(packet_id, decrypted)
-        payload = packet_id.to_bytes(2, 'big') + len(encrypted).to_bytes(3, 'big') + data[5:7] + encrypted
-
-        self.client.transport.write(payload)
