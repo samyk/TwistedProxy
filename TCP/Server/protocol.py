@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import hexdump
+import socket
 
 from twisted.internet import reactor
 from TCP.Client.factory import ClientFactory
@@ -9,7 +10,8 @@ from TCP.Packet.packetEnum import packet_enum
 from UDP.packetEnum import udp_packet_enum
 from twisted.internet.protocol import Protocol
 
-
+UDP_IP = "127.0.0.1"
+UDP_PORT = 9340
 class ServerProtocol(packetReceiver, Protocol):
 
     def __init__(self, factory):
@@ -17,6 +19,7 @@ class ServerProtocol(packetReceiver, Protocol):
         self.factory.server = self
         self.crypto = self.factory.crypto
         self.client = None
+        self.udpsock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
     def connectionMade(self):
         self.peer = self.transport.getPeer()
@@ -43,6 +46,9 @@ class ServerProtocol(packetReceiver, Protocol):
         print('[*] {} received from client'.format(packet_name))
 
         self.client.transport.write(payload)
+        bstr = (packet_id).to_bytes(2, byteorder='big')
+        if len(decrypted) < 40:
+            self.udpsock.sendto(bstr+decrypted, (UDP_IP, UDP_PORT))
 
         if self.factory.args.verbose and decrypted:
             print(hexdump.hexdump(decrypted))
